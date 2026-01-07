@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KeySecurity - Gerenciador de Senhas v.2.0</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/secure.png">
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/modernizr-3.6.0.min.js"></script>
+</head>
+
+<body class="v-light compact-nav fix-header fix-sidebar">
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <!-- header -->
+        <div class="header">
+            <div class="nav-header">
+                <div class="brand-logo"><a><b><img src="../../assets/images/secure.png" alt=""> </b><span
+                            class="brand-title">KeySecurity</span></a>
+                </div>
+                <div class="nav-control">
+                    <div class="hamburger"><span class="line"></span> <span class="line"></span> <span
+                            class="line"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-content">
+                <div class="header-right">
+                    <ul>
+                        <li class="icons"><a href="javascript:void(0)"><i class="mdi mdi-account f-s-20"
+                                    aria-hidden="true"></i>
+                                Bem Vindo(a), <strong id="nomeUsuario">...</strong>
+                            </a>
+                            <div class="drop-down dropdown-profile animated bounceInDown">
+                                <div class="dropdown-content-body">
+                                    <ul>
+                                        <li><a href="/logout"><i class="mdi mdi-logout"></i> <span>Sair</span></a>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- #/ header -->
+        <!-- sidebar -->
+        <div class="nk-sidebar">
+            <div class="nk-nav-scroll">
+                <ul class="metismenu" id="menu">
+                    <li class="nav-label">Menu</li>
+
+                    <li>
+                        <a href="/home">
+                            <i class="mdi mdi-home"></i>
+                            <span class="nav-text">Home</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/listasenhas">
+                            <i class="mdi mdi-lock-outline"></i>
+                            <span class="nav-text">Minhas Senhas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/gerador">
+                            <i class="mdi mdi-key-variant"></i>
+                            <span class="nav-text">Gerador de Senhas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-label">Mais</li>
+
+                    <li>
+                        <a href="/perfil">
+                            <i class="mdi mdi-account"></i>
+                            <span class="nav-text">Perfil</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/sobre">
+                            <i class="mdi mdi-information-outline"></i>
+                            <span class="nav-text">Sobre</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+            </div>
+            <!-- #/ nk nav scroll -->
+        </div>
+        <!-- #/ sidebar -->
+        <!-- content body -->
+        <div class="content-body">
+            <div class="container">
+                <div class="row page-titles">
+                    <div class="col p-0">
+                        <i class="mdi mdi-information-outline"></i><span> Sobre o KeySecurity</span>
+                    </div>
+                    <div class="col p-0">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="javascript:void(0)">Menu</a>
+                            </li>
+                            <li class="breadcrumb-item active">Sobre</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Área central -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h4 class="card-title text-center mb-4">
+                                    O que é o <strong>KeySecurity</strong>
+                                </h4>
+
+                                <div class="center-image2">
+                                    <img src="/assets/images/secure.png" alt="Imagem central">
+                                </div>
+
+                                <p>
+                                    O <strong>KeySecurity</strong> é um sistema desenvolvido para o gerenciamento seguro
+                                    de senhas,
+                                    oferecendo praticidade, organização e proteção de dados.
+                                    Na <strong>versão 2.0</strong>, o sistema recebeu melhorias em desempenho, segurança
+                                    e experiência do usuário.
+                                </p>
+
+                                <p class="mb-4">
+                                    Com uma interface moderna e intuitiva, o KeySecurity permite que você acesse suas
+                                    senhas
+                                    de forma rápida e segura, a partir de qualquer lugar.
+                                </p>
+
+                                <!-- Accordion -->
+                                <div id="accordion-one" class="accordion">
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0" data-toggle="collapse" data-target="#collapseOne"
+                                                aria-expanded="true" aria-controls="collapseOne">
+                                                <i class="fa" aria-hidden="true"></i> Gerenciamento de Senhas
+                                            </h5>
+                                        </div>
+                                        <div id="collapseOne" class="collapse show" data-parent="#accordion-one">
+                                            <div class="card-body">
+                                                Permite salvar, editar e organizar suas senhas de maneira simples,
+                                                mantendo todas as informações centralizadas e protegidas.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                                aria-expanded="false" aria-controls="collapseTwo">
+                                                <i class="fa" aria-hidden="true"></i> Performance
+                                            </h5>
+                                        </div>
+                                        <div id="collapseTwo" class="collapse" data-parent="#accordion-one">
+                                            <div class="card-body">
+                                                A versão 2.0 apresenta melhorias de desempenho,
+                                                tornando o sistema mais rápido, estável e responsivo.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0 collapsed" data-toggle="collapse"
+                                                data-target="#collapseThree" aria-expanded="false"
+                                                aria-controls="collapseThree">
+                                                <i class="fa" aria-hidden="true"></i> Segurança de Dados
+                                            </h5>
+                                        </div>
+                                        <div id="collapseThree" class="collapse" data-parent="#accordion-one">
+                                            <div class="card-body">
+                                                Utiliza boas práticas de segurança para garantir a confidencialidade
+                                                e integridade das informações armazenadas.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0 collapsed" data-toggle="collapse"
+                                                data-target="#collapseFour" aria-expanded="false"
+                                                aria-controls="collapseFour">
+                                                <i class="fa" aria-hidden="true"></i> Interface do Usuário
+                                            </h5>
+                                        </div>
+                                        <div id="collapseFour" class="collapse" data-parent="#accordion-one">
+                                            <div class="card-body">
+                                                Interface moderna, limpa e intuitiva,
+                                                facilitando a navegação e o uso diário do sistema.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0 collapsed" data-toggle="collapse"
+                                                data-target="#collapseFive" aria-expanded="false"
+                                                aria-controls="collapseFive">
+                                                <i class="fa" aria-hidden="true"></i> Acesso Remoto
+                                            </h5>
+                                        </div>
+                                        <div id="collapseFive" class="collapse" data-parent="#accordion-one">
+                                            <div class="card-body">
+                                                Possibilita o acesso seguro às suas senhas a partir de qualquer
+                                                dispositivo
+                                                conectado à internet.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <hr>
+
+                                <div class="text-center mt-4">
+                                    <strong>Versão:</strong> 2.0<br>
+                                    <strong>Desenvolvedor:</strong> Anderson Fernandes (Kabula)<br>
+                                    <strong>Contato:</strong> supportkeysecurity@gmail.com
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Área central -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="copyright">
+                <p>Copyright © KeySecurity 2026, by Anderson Kabula</p>
+            </div>
+        </div>
+
+        <!-- HEADER USER -->
+        <script src="/js/header-user.js"></script>
+        <!-- Common JS -->
+        <script src="../../assets/plugins/common/common.min.js"></script>
+        <!-- Custom script -->
+        <script src="../js/custom+mini-nav.js"></script>
+</body>
+
+</html>

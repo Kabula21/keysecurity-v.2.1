@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KeySecurity - Gerenciador de Senhas v.2.0</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/secure.png">
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/modernizr-3.6.0.min.js"></script>
+</head>
+
+<body class="v-light compact-nav fix-header fix-sidebar">
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <!-- header -->
+        <div class="header">
+            <div class="nav-header">
+                <div class="brand-logo"><a><b><img src="../../assets/images/secure.png" alt=""> </b><span
+                            class="brand-title">KeySecurity</span></a>
+                </div>
+                <div class="nav-control">
+                    <div class="hamburger"><span class="line"></span> <span class="line"></span> <span
+                            class="line"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-content">
+                <div class="header-right">
+                    <ul>
+                        <li class="icons"><a href="javascript:void(0)"><i class="mdi mdi-account f-s-20"
+                                    aria-hidden="true"></i>
+                                Bem Vindo(a), <strong id="nomeUsuario">...</strong>
+                            </a>
+                            <div class="drop-down dropdown-profile animated bounceInDown">
+                                <div class="dropdown-content-body">
+                                    <ul>
+                                        <li><a href="/logout"><i class="mdi mdi-logout"></i> <span>Sair</span></a>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- #/ header -->
+        <!-- sidebar -->
+        <div class="nk-sidebar">
+            <div class="nk-nav-scroll">
+                <ul class="metismenu" id="menu">
+                    <li class="nav-label">Menu</li>
+
+                    <li>
+                        <a href="/home">
+                            <i class="mdi mdi-home"></i>
+                            <span class="nav-text">Home</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/listasenhas">
+                            <i class="mdi mdi-lock-outline"></i>
+                            <span class="nav-text">Minhas Senhas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/gerador">
+                            <i class="mdi mdi-key-variant"></i>
+                            <span class="nav-text">Gerador de Senhas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-label">Mais</li>
+
+                    <li>
+                        <a href="/perfil">
+                            <i class="mdi mdi-account"></i>
+                            <span class="nav-text">Perfil</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/sobre">
+                            <i class="mdi mdi-information-outline"></i>
+                            <span class="nav-text">Sobre</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+            </div>
+            <!-- #/ nk nav scroll -->
+        </div>
+        <!-- #/ sidebar -->
+        <!-- content body -->
+        <div class="content-body">
+            <div class="container">
+                <div class="row page-titles">
+                    <div class="col p-0">
+                        <h4>Olá, <span>Bem vindo ao KeySecurity</span></h4>
+                    </div>
+                    <div class="col p-0">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="javascript:void(0)">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active">Painel</li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- Área central -->
+                <div class="center-image">
+                    <img src="/assets/images/secure.png" alt="Imagem central">
+                </div>
+                <h4 class="center-image">Seu Gerenciador de Senhas v.2.0</h4>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="copyright">
+                <p>Copyright © KeySecurity 2026, by Anderson Kabula</p>
+            </div>
+        </div>
+
+        <!-- HEADER USER -->
+        <script src="/js/header-user.js"></script>
+        <!-- Common JS -->
+        <script src="../../assets/plugins/common/common.min.js"></script>
+        <!-- Custom script -->
+        <script src="../js/custom+mini-nav.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KeySecurity - Gerenciador de Senhas v.2.0</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/secure.png">
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/modernizr-3.6.0.min.js"></script>
+</head>
+
+<body class="v-light compact-nav fix-header fix-sidebar">
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <!-- header -->
+        <div class="header">
+            <div class="nav-header">
+                <div class="brand-logo"><a><b><img src="../../assets/images/secure.png" alt=""> </b><span
+                            class="brand-title">KeySecurity</span></a>
+                </div>
+                <div class="nav-control">
+                    <div class="hamburger"><span class="line"></span> <span class="line"></span> <span
+                            class="line"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-content">
+                <div class="header-right">
+                    <ul>
+                        <li class="icons"><a href="javascript:void(0)"><i class="mdi mdi-account f-s-20"
+                                    aria-hidden="true"></i>
+                                Bem Vindo(a), <strong id="nomeUsuario">...</strong>
+                            </a>
+                            <div class="drop-down dropdown-profile animated bounceInDown">
+                                <div class="dropdown-content-body">
+                                    <ul>
+                                        <li><a href="/logout"><i class="mdi mdi-logout"></i> <span>Sair</span></a>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- #/ header -->
+        <!-- sidebar -->
+        <div class="nk-sidebar">
+            <div class="nk-nav-scroll">
+                <ul class="metismenu" id="menu">
+                    <li class="nav-label">Menu</li>
+
+                    <li>
+                        <a href="/home">
+                            <i class="mdi mdi-home"></i>
+                            <span class="nav-text">Home</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/listasenhas">
+                            <i class="mdi mdi-lock-outline"></i>
+                            <span class="nav-text">Minhas Senhas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/gerador">
+                            <i class="mdi mdi-key-variant"></i>
+                            <span class="nav-text">Gerador de Senhas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-label">Mais</li>
+
+                    <li>
+                        <a href="/perfil">
+                            <i class="mdi mdi-account"></i>
+                            <span class="nav-text">Perfil</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/sobre">
+                            <i class="mdi mdi-information-outline"></i>
+                            <span class="nav-text">Sobre</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+            </div>
+            <!-- #/ nk nav scroll -->
+        </div>
+        <!-- #/ nk nav scroll -->
+    </div>
+    <!-- #/ sidebar -->
+    <!-- content body -->
+    <div class="content-body">
+        <div class="container">
+            <div class="row page-titles">
+                <div class="col p-0">
+                    <i class="mdi mdi-cogs"></i><span> Configurações de Perfil</span>
+                </div>
+                <div class="col p-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="javascript:void(0)">Menu</a>
+                        </li>
+                        <li class="breadcrumb-item active">Perfil</li>
+                    </ol>
+                </div>
+            </div>
+            <!-- Área central -->
+
+            <div class="row justify-content-center">
+                <div class="col-lg-14 col-xl-14">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <!-- Avatar -->
+                            <div class="text-center mb-4">
+                                <img id="avatarImg" src="/assets/images/avatar.png" class="rounded-circle mb-2"
+                                    width="120" alt="Avatar">
+
+                                <div class="mt-2">
+                                    <input type="file" id="avatarFile" accept="image/png,image/jpeg,image/webp" hidden>
+                                    <button type="button" class="btn btn-sm btn-primary" id="btnUploadAvatar">
+                                        Alterar foto
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" id="btnRemoveAvatar">
+                                        Remover
+                                    </button>
+                                </div>
+
+                                <h4 class="mb-0 mt-3">Perfil do Usuário</h4>
+                                <small class="text-muted">Atualize suas informações pessoais</small>
+                            </div>
+
+
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Nome</label>
+                                            <input type="text" class="form-control" placeholder="Nome">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Sobrenome</label>
+                                            <input type="text" class="form-control" placeholder="Sobrenome">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Gênero</label>
+                                            <select class="form-control">
+                                                <option>Selecione</option>
+                                                <option>Masculino</option>
+                                                <option>Feminino</option>
+                                                <option>Outro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Data de Nascimento</label>
+                                            <input type="date" class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>E-mail</label>
+                                            <input type="email" class="form-control" placeholder="email@exemplo.com">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>CEP</label>
+                                            <input type="text" class="form-control" name="cep">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label>Endereço</label>
+                                            <input type="text" class="form-control" name="endereco">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>País</label>
+                                            <select id="pais" class="form-control">
+                                                <option value="BR" selected>Brasil</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Estado</label>
+                                            <select id="estado" class="form-control">
+                                                <option value="">Selecione o Estado</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Cidade</label>
+                                            <select id="cidade" class="form-control">
+                                                <option value="">Selecione a Cidade</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Complemento</label>
+                                            <input type="text" class="form-control" name="complemento">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <h5>Segurança</h5>
+
+                                <div class="form-group">
+                                    <label>Senha atual *</label>
+                                    <input type="password" id="senhaAtual" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Nova senha (opcional)</label>
+                                    <input type="password" id="novaSenha" class="form-control">
+                                </div>
+
+                                <div class="text-right mt-3">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="mdi mdi-content-save"></i> Salvar
+                                    </button>
+                                    <button type="button" id="btnExcluirConta" class="btn btn-danger">
+                                        <i class="mdi mdi-delete"></i> Excluir
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Global -->
+    <div id="ksModal" class="ks-modal hidden">
+        <div class="ks-modal-overlay" data-close="true"></div>
+
+        <div class="ks-modal-box" role="dialog" aria-modal="true" aria-labelledby="ksModalTitle">
+            <div class="ks-modal-header">
+                <h5 id="ksModalTitle" class="ks-modal-title">Aviso</h5>
+                <button type="button" class="ks-modal-x" aria-label="Fechar" data-close="true">&times;</button>
+            </div>
+
+            <div class="ks-modal-body">
+                <p id="ksModalMessage"></p>
+            </div>
+
+            <div class="ks-modal-footer">
+                <button type="button" id="ksModalOk" class="btn btn-primary">OK</button>
+                <button type="button" id="ksModalCancel" class="btn btn-light">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="copyright">
+            <p>Copyright © KeySecurity 2026, by Anderson Kabula</p>
+        </div>
+    </div>
+     <!-- HEADER USER -->
+    <script src="/js/header-user.js"></script>
+    <!-- MODAL -->
+    <script src="/js/modal.js"></script>
+    <!-- JS PERFIL -->
+    <script src="/js/perfil.js"></script>
+    <!-- API IBGE JS -->
+    <script src="/js/ibge.js"></script>
+    <!-- Common JS -->
+    <script src="../../assets/plugins/common/common.min.js"></script>
+    <!-- Custom script -->
+    <script src="../js/custom+mini-nav.js"></script>
+</body>
+
+</html>

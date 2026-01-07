@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KeySecurity - Gerenciador de Senhas v.2.0</title>
+
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/secure.png">
+
+    <!-- CSS -->
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/modernizr-3.6.0.min.js"></script>
+</head>
+
+<body class="v-light compact-nav fix-header fix-sidebar">
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+
+    <div id="main-wrapper">
+        <!-- header -->
+        <div class="header">
+            <div class="nav-header">
+                <div class="brand-logo">
+                    <a>
+                        <b><img src="../../assets/images/secure.png" alt=""></b>
+                        <span class="brand-title">KeySecurity</span>
+                    </a>
+                </div>
+                <div class="nav-control">
+                    <div class="hamburger">
+                        <span class="line"></span> <span class="line"></span> <span class="line"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-content">
+                <div class="header-right">
+                    <ul>
+                        <li class="icons">
+                            <a href="javascript:void(0)">
+                                <i class="mdi mdi-account f-s-20" aria-hidden="true"></i>
+                                Bem Vindo(a), <strong id="nomeUsuario">...</strong>
+                            </a>
+                            <div class="drop-down dropdown-profile animated bounceInDown">
+                                <div class="dropdown-content-body">
+                                    <ul>
+                                        <li>
+                                            <a href="/logout"><i class="mdi mdi-logout"></i> <span>Sair</span></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- #/ header -->
+
+        <!-- sidebar -->
+        <div class="nk-sidebar">
+            <div class="nk-nav-scroll">
+                <ul class="metismenu" id="menu">
+                    <li class="nav-label">Menu</li>
+
+                    <li>
+                        <a href="/home">
+                            <i class="mdi mdi-home"></i>
+                            <span class="nav-text">Home</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/listasenhas">
+                            <i class="mdi mdi-lock-outline"></i>
+                            <span class="nav-text">Minhas Senhas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/gerador">
+                            <i class="mdi mdi-key-variant"></i>
+                            <span class="nav-text">Gerador de Senhas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-label">Mais</li>
+
+                    <li>
+                        <a href="/perfil">
+                            <i class="mdi mdi-account"></i>
+                            <span class="nav-text">Perfil</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/sobre">
+                            <i class="mdi mdi-information-outline"></i>
+                            <span class="nav-text">Sobre</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- #/ sidebar -->
+
+        <!-- content body -->
+        <div class="content-body">
+            <div class="container">
+                <div class="row page-titles">
+                    <div class="col p-0">
+                        <i class="mdi mdi-lock-outline"></i><span> Confira, mude ou remova as senhas salvas</span>
+                    </div>
+                    <div class="col p-0">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="javascript:void(0)">Menu</a></li>
+                            <li class="breadcrumb-item active">Minhas Senhas</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Área central -->
+                <div class="card-header-top d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title mb-0" id="totalRegistros">0 Registros</h4>
+
+                        <button type="button" class="btn btn-sm btn-primary ml-3" title="Criar" data-toggle="modal"
+                            data-target="#modalGrupo">
+                            <i class="mdi mdi-plus"></i>
+                        </button>
+                    </div>
+
+                    <div class="header-right">
+                        <ul class="mb-0">
+                            <li class="icons position-relative">
+                                <a href="javascript:void(0)">
+                                    <i class="icon-magnifier f-s-16"></i>
+                                </a>
+                                <div class="drop-down animated bounceInDown">
+                                    <div class="dropdown-content-body">
+                                        <div class="header-search" id="header-search">
+                                            <form action="#">
+                                                <div class="input-group">
+                                                    <input type="text" id="searchInput" class="form-control" placeholder="Procurar">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">
+                                                            <i class="icon-magnifier"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Acordeons -->
+                <div id="accordion-two" class="accordion">
+                    <!-- O JS vai renderizar tudo aqui -->
+                </div>
+
+                <!-- Paginação (fica fora do accordion, o JS não apaga) -->
+                <div class="bootstrap-pagination mt-3">
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+        <!-- #/ content body -->
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="copyright">
+                <p>Copyright © KeySecurity 2026, by Anderson Kabula</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR/EDITAR GRUPO -->
+    <div class="modal fade" id="modalGrupo" tabindex="-1" role="dialog" aria-labelledby="modalGrupoLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalGrupoLabel">Novo Grupo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="formGrupo">
+                        <input type="hidden" id="grupoId">
+
+                        <div class="form-group">
+                            <label for="grupoNome" class="col-form-label">
+                                <i class="icon-star"></i> Nome Principal
+                            </label>
+                            <input type="text" class="form-control" id="grupoNome" name="grupoNome"
+                                placeholder="Ex: GMAIL" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="grupoTipo" class="col-form-label">
+                                <i class="icon-tag"></i> Tipo / Categoria
+                            </label>
+                            <input type="text" class="form-control" id="grupoTipo" name="grupoTipo"
+                                placeholder="Ex: Email">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-tertiary" data-dismiss="modal">
+                        <i class="icon-close"></i> Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="btnSalvarGrupo">
+                        <i class="fa fa-floppy-o"></i> Salvar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR/EDITAR SENHA (ITEM) -->
+    <div class="modal fade" id="modalItem" tabindex="-1" role="dialog" aria-labelledby="modalItemLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalItemLabel">Adicionar senha</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="formItem">
+                        <input type="hidden" id="itemGroupId">
+                        <input type="hidden" id="itemId">
+
+                        <div class="form-group">
+                            <label for="itemUsuario" class="col-form-label">
+                                <i class="icon-user"></i> Usuário
+                            </label>
+                            <input type="text" class="form-control" id="itemUsuario" placeholder="Ex: anderson">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemEmail" class="col-form-label">
+                                <i class="icon-envelope"></i> E-mail
+                            </label>
+                            <input type="email" class="form-control" id="itemEmail"
+                                placeholder="Ex: anderson@gmail.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemSenha" class="col-form-label">
+                                <i class="icon-lock"></i> Senha
+                            </label>
+                            <input type="text" class="form-control" id="itemSenha" placeholder="Senha" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemObs" class="col-form-label">
+                                <i class="icon-note"></i> Observação
+                            </label>
+                            <textarea class="form-control" id="itemObs" rows="2" placeholder="Opcional"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-tertiary" data-dismiss="modal">
+                        <i class="icon-close"></i> Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="btnSalvarItem">
+                        <i class="fa fa-floppy-o"></i> Salvar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Global (showModal / confirmModal) -->
+    <div id="ksModal" class="ks-modal hidden">
+        <div class="ks-modal-overlay" data-close="true"></div>
+
+        <div class="ks-modal-box" role="dialog" aria-modal="true" aria-labelledby="ksModalTitle">
+            <div class="ks-modal-header">
+                <h5 id="ksModalTitle" class="ks-modal-title">Aviso</h5>
+                <button type="button" class="ks-modal-x" aria-label="Fechar" data-close="true">&times;</button>
+            </div>
+
+            <div class="ks-modal-body">
+                <p id="ksModalMessage"></p>
+            </div>
+
+            <div class="ks-modal-footer">
+                <button type="button" id="ksModalCancel" class="btn btn-light">Cancelar</button>
+                <button type="button" id="ksModalOk" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS (ordem correta) -->
+    <script src="../../assets/plugins/common/common.min.js"></script>
+    <script src="../js/custom+mini-nav.js"></script>
+
+    <script src="/js/modal.js"></script>
+    <script src="/js/header-user.js"></script>
+    <script src="/js/listasenhas.js"></script>
+</body>
+
+</html>

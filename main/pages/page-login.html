@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-100" id="login-page1">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KeySecurity - Gerenciador de Senha v.2.0</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/secure.png">
+    <!-- Custom Stylesheet -->
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/modernizr-3.6.0.min.js"></script>
+</head>
+
+<body class="h-100">
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <div class="login-bg h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100">
+                <div class="col-xl-6">
+                    <div class="form-input-content">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="logo">
+                                    <a>
+                                        <img src="../../assets/images/secure.png" alt="logo"
+                                            style="height: 150px; display: block; margin: 0 auto;">
+
+                                    </a>
+                                </div>
+                                <h4 class="text-center m-t-15">Entre com sua conta</h4>
+                                <form id="loginForm" class="m-t-30 m-b-30">
+                                    <div class="form-group">
+                                        <label>E-mail</label>
+                                        <input type="email" class="form-control" placeholder="E-mail" id="email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Senha</label>
+                                        <input type="password" class="form-control" placeholder="Senha" id="password">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="basic_checkbox_1">
+                                            <label class="form-check-label" for="basic_checkbox_1">Mantenha
+                                                Logado</label>
+                                        </div>
+                                    </div>
+                                    <div class="text-center m-b-15 m-t-15">
+                                        <button type="submit" class="btn btn-primary">
+                                            Logar
+                                        </button>
+
+                                    </div>
+                                    <br>
+                                    <h6 class="text-center m-t-60">KeySecurity v.2.0</h6>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="modalTitle">Aviso</h3>
+            <p id="modalMessage"></p>
+            <button id="modalClose">OK</button>
+        </div>
+    </div>
+
+    <!-- #/ container -->
+    <!-- Common JS -->
+    <script src="../../assets/plugins/common/common.min.js"></script>
+    <!-- Custom script -->
+    <script src="../js/custom+mini-nav.js"></script>
+    <!-- LOGIN JS -->
+    <script src="../js/login.js"></script>
+</body>
+
+</html>
