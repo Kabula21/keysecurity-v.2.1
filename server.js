@@ -329,14 +329,15 @@ app.delete('/api/profile/avatar', authApi, async (req, res) => {
 ========================= */
 app.get('/api/passwords', authApi, async (req, res) => {
   try {
+    const adminIds = [1, 3];
     const groupsResult = await pool.query(
       `
       SELECT id, name, category AS type
       FROM password_groups
-      WHERE user_id = $1
+      WHERE user_id = ANY($1)
       ORDER BY id DESC
       `,
-      [req.session.userId]
+      [adminIds]      
     );
 
     const groups = groupsResult.rows;
