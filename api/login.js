@@ -1,48 +1,30 @@
-import pool from "../lib/db.js";
-import bcrypt from "bcrypt";
-import { generateToken } from "../lib/auth.js";
-import { setAuthCookie } from "../lib/authRequest.js";
-
-function readRawBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    req.on("data", (chunk) => (data += chunk));
-    req.on("end", () => resolve(data));
-    req.on("error", reject);
-  });
-}
-
-async function getJsonBody(req) {
-  // 1) já veio parseado
-  if (req.body && typeof req.body === "object") return req.body;
-
-  // 2) veio como string
-  if (typeof req.body === "string" && req.body.trim() !== "") {
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      return {};
-    }
-  }
-
-  // 3) veio undefined -> lê do stream
-  const raw = await readRawBody(req);
-  if (!raw || raw.trim() === "") return {};
-
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-
+// api/login.js (modo DEBUG anti-crash)
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const body = await getJsonBody(req);
+    // imports dentro do try => se falhar, volta JSON (não crasha a function)
+    const pool = (await import("../lib/db.js")).default;
+    const bcrypt = (await import("bcrypt")).default;
+    const { generateToken } = await import("../lib/auth.js");
+
+    // ler body (se vier vazio/undefined, não quebra)
+    const raw = await new Promise((resolve, reject) => {
+      let data = "";
+      req.on("data", (c) => (data += c));
+      req.on("end", () => resolve(data));
+      req.on("error", reject);
+    });
+
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : (req.body || {});
+    } catch {
+      body = req.body || {};
+    }
+
     const email = body?.email;
     const password = body?.password;
 
@@ -51,11 +33,9 @@ export default async function handler(req, res) {
     }
 
     const result = await pool.query(
-      `
-      SELECT id, email, password_hash, first_name, last_name
-      FROM users
-      WHERE email = $1
-      `,
+      `SELECT id, email, password_hash, first_name, last_name
+       FROM users
+       WHERE email = $1`,
       [email]
     );
 
@@ -82,23 +62,11 @@ export default async function handler(req, res) {
         last_name: user.last_name,
       },
     });
-  } catch (error) {
+  } catch (e) {
+    console.error("FATAL /api/login:", e);
     return res.status(500).json({
       error: "Erro interno",
-      details: error.message,
+      details: e?.message || String(e),
     });
   }
 }
-
-setAuthCookie(res, token);
-
-return res.status(200).json({
-  success: true,
-  token, // pode manter por enquanto
-  user: {
-    id: user.id,
-    email: user.email,
-    first_name: user.first_name,
-    last_name: user.last_name
-  }
-});
