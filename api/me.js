@@ -1,6 +1,6 @@
 // api/me.js
 import pool from "../lib/db.js";
-import { requireAuth } from "../lib/authRequest.js";
+import { requireAuth } from "../lib/requireAuth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -20,7 +20,9 @@ export default async function handler(req, res) {
       [payload.id]
     );
 
-    if (!r.rows.length) return res.status(404).json({ error: "Usuário não encontrado" });
+    if (!r.rows.length) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
 
     return res.status(200).json({ success: true, user: r.rows[0] });
   } catch (e) {
