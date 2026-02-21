@@ -40,3 +40,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     el.textContent = '...';
   }
 });
+
+// Logout (intercepta clique)
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutLink =
+    document.getElementById('btnLogout') ||
+    document.querySelector('a[href="/logout"]') ||
+    document.querySelector('a[href="/login"]#btnLogout');
+
+  if (!logoutLink) return;
+
+  logoutLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    // 1) remove token local
+    localStorage.removeItem('keysecurity_token');
+
+    // 2) opcional: avisa backend (útil se você usar cookie no futuro)
+    try {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    } catch (_) {}
+
+    // 3) redireciona pro login
+    window.location.href = '/login';
+  });
+});
