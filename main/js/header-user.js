@@ -1,20 +1,32 @@
+// main/js/header-user.js
 document.addEventListener('DOMContentLoaded', async () => {
-  const nomeEl = document.getElementById('nomeUsuario');
-  if (!nomeEl) return; // página não tem header
-
   try {
-    const res = await fetch('/api/profile', {
-      credentials: 'same-origin'
+    const token = localStorage.getItem('keysecurity_token');
+    if (!token) return;
+
+    const res = await fetch('/api/me', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include'
     });
 
-    if (!res.ok) return;
+    if (res.status === 401) {
+      localStorage.removeItem('keysecurity_token');
+      window.location.href = '/login';
+      return;
+    }
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    const u = data.user || {};
 
-    // Prioridade: nome > email
-    nomeEl.textContent = data.nome || data.email || 'Usuário';
+    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+    const el =
+      document.getElementById('headerUserName') ||
+      document.querySelector('.header-user-name') ||
+      document.querySelector('[data-header-user-name]');
 
-  } catch (err) {
-    console.error('Erro ao carregar nome do usuário', err);
+    if (el) el.textContent = fullName || u.email || 'Usuário';
+  } catch (e) {
+    console.error('Erro header-user:', e);
   }
 });

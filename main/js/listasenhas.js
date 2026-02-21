@@ -4,7 +4,7 @@ let currentGroupId = null;
 let allGroups = [];         // tudo vindo da API
 let filteredGroups = [];    // após filtro
 let currentPage = 1;
-const pageSize = 10;        // ✅ 10 acordeões por página
+const pageSize = 5;        // ✅ 10 acordeões por página
 const maxPageButtons = 10;  // ✅ no máximo 10 botões numéricos
 
 /* =========================

@@ -59,12 +59,31 @@ async function carregarPerfil() {
     }
 
     // Campos principais
-    document.querySelector('input[type="email"]').value = data.email ?? '';
-    document.querySelector('input[placeholder="Nome"]').value = data.nome ?? '';
-    document.querySelector('input[placeholder="Sobrenome"]').value = data.sobrenome ?? '';
-    document.querySelector('select').value = data.genero ?? '';
-    document.querySelector('input[type="date"]').value =
-      data.data_nascimento ? String(data.data_nascimento).split('T')[0] : '';
+    // helper: pega o primeiro seletor que existir
+    function pick(...selectors) {
+      for (const s of selectors) {
+        const el = document.querySelector(s);
+        if (el) return el;
+      }
+      return null;
+    }
+
+    // Campos principais (robusto)
+    const emailEl = pick('#email', 'input[name="email"]', 'input[type="email"]');
+    if (emailEl) emailEl.value = data.email ?? '';
+
+    const nomeEl = pick('#nome', 'input[name="nome"]', 'input[placeholder="Nome"]');
+    if (nomeEl) nomeEl.value = data.nome ?? '';
+
+    const sobrenomeEl = pick('#sobrenome', 'input[name="sobrenome"]', 'input[placeholder="Sobrenome"]');
+    if (sobrenomeEl) sobrenomeEl.value = data.sobrenome ?? '';
+
+    const generoEl = pick('#genero', 'select[name="genero"]', 'select#gender');
+    if (generoEl) generoEl.value = data.genero ?? '';
+
+    // data_nascimento pode vir Date/string ISO
+    const nascEl = pick('#data_nascimento', 'input[name="data_nascimento"]', 'input[type="date"]');
+    if (nascEl) nascEl.value = data.data_nascimento ? String(data.data_nascimento).split('T')[0] : '';
 
     // Campos com name/id
     const cepInput = document.querySelector('input[name="cep"]');
