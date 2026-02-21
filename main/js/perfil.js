@@ -67,12 +67,7 @@ async function carregarPerfil() {
       cidade: data.cidade ?? data.city ?? '',
       complemento: data.complemento ?? data.complement ?? ''
     };
-
-    // Avatar
-    const avatarImg = document.getElementById('avatarImg');
-    if (avatarImg) {
-      avatarImg.src = data.avatar || '/assets/images/avatar.png';
-    }
+  
 
     // Campos principais
     // Avatar
