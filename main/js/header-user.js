@@ -1,32 +1,40 @@
 // main/js/header-user.js
 document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const token = localStorage.getItem('keysecurity_token');
-    if (!token) return;
+  const elNome = document.getElementById('nomeUsuario');
+  if (!elNome) return;
 
+  const token = localStorage.getItem('keysecurity_token');
+
+  // Se não tiver token, mantém "..."
+  if (!token) {
+    elNome.textContent = '...';
+    return;
+  }
+
+  try {
     const res = await fetch('/api/me', {
       method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
       credentials: 'include'
     });
 
     if (res.status === 401) {
       localStorage.removeItem('keysecurity_token');
-      window.location.href = '/login';
+      elNome.textContent = '...';
+      // opcional: redirecionar
+      // window.location.href = '/login';
       return;
     }
 
     const data = await res.json().catch(() => ({}));
     const u = data.user || {};
 
-    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
-    const el =
-      document.getElementById('headerUserName') ||
-      document.querySelector('.header-user-name') ||
-      document.querySelector('[data-header-user-name]');
-
-    if (el) el.textContent = fullName || u.email || 'Usuário';
+    const nomeCompleto = [u.first_name, u.last_name].filter(Boolean).join(' ');
+    elNome.textContent = nomeCompleto || u.email || 'Usuário';
   } catch (e) {
-    console.error('Erro header-user:', e);
+    console.error('header-user.js:', e);
+    elNome.textContent = '...';
   }
 });
