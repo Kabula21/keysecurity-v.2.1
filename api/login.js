@@ -70,3 +70,11 @@ export default async function handler(req, res) {
     });
   }
 }
+
+const maxAge = 60 * 60 * 24 * 7; // 7 dias
+const secure = process.env.NODE_ENV === "production" ? " Secure;" : "";
+
+res.setHeader(
+  "Set-Cookie",
+  `keysecurity_token=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge};${secure}`
+);

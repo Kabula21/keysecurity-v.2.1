@@ -1,15 +1,21 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "main/**", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" },
+    { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1.js"
-    }
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+
+    { "src": "/login/?", "dest": "/main/pages/page-login.html" },
+    { "src": "/home/?", "dest": "/main/pages/home.html" },
+    { "src": "/perfil/?", "dest": "/main/pages/perfil.html" },
+    { "src": "/listasenhas/?", "dest": "/main/pages/listasenhas.html" },
+    { "src": "/gerador/?", "dest": "/main/pages/gerador.html" },
+    { "src": "/sobre/?", "dest": "/main/pages/sobre.html" },
+
+    { "src": "/?$", "dest": "/main/pages/page-login.html" }
   ]
 }
