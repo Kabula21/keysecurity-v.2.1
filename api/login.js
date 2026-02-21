@@ -1,6 +1,7 @@
 import pool from "../lib/db.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../lib/auth.js";
+import { setAuthCookie } from "../lib/authRequest.js";
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -88,3 +89,16 @@ export default async function handler(req, res) {
     });
   }
 }
+
+setAuthCookie(res, token);
+
+return res.status(200).json({
+  success: true,
+  token, // pode manter por enquanto
+  user: {
+    id: user.id,
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name
+  }
+});
