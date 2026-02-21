@@ -2,8 +2,8 @@
     "name": "ule",
     "version": "2.0.0",
     "type": "module",
-    "description": "KeySecurity",    
-    "scripts": {     
+    "description": "KeySecurity",
+    "scripts": {
         "watch": "sass --watch main/scss/style.scss:main/css/style.css"
     },
     "author": "Anderson Kabula",
@@ -68,6 +68,7 @@
         "jquery.flot": "^0.8.3",
         "jqueryui": "^1.11.1",
         "jqvmap": "^1.5.1",
+        "jsonwebtoken": "^9.0.3",
         "justgage": "^1.2.2",
         "knob": "^1.1.0",
         "metismenu": "^2.7.9",
