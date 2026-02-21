@@ -67,63 +67,166 @@ async function carregarPerfil() {
       cidade: data.cidade ?? data.city ?? '',
       complemento: data.complemento ?? data.complement ?? ''
     };
-  
 
-    // Campos principais
-    // Avatar
-const avatarImg = document.getElementById('avatarImg');
-if (avatarImg) avatarImg.src = view.avatar || '/assets/images/avatar.png';
+    // helpers
+    const byId = (id) => document.getElementById(id);
 
-// Campos principais
-function pick(...selectors) {
-  for (const s of selectors) {
-    const el = document.querySelector(s);
-    if (el) return el;
-  }
-  return null;
-}
+    const pick = (...selectors) => {
+      for (const s of selectors) {
+        const el = document.querySelector(s);
+        if (el) return el;
+      }
+      return null;
+    };
 
-const emailEl = pick('#email', 'input[name="email"]', 'input[type="email"]');
-if (emailEl) emailEl.value = view.email;
+    const norm = (v) => String(v ?? '').trim();
 
-const nomeEl = pick('#nome', 'input[name="nome"]', 'input[placeholder="Nome"]');
-if (nomeEl) nomeEl.value = view.nome;
+    const setInput = (selectors, value) => {
+      const el = pick(...selectors);
+      if (el) el.value = value ?? '';
+      return el;
+    };
 
-const sobrenomeEl = pick('#sobrenome', 'input[name="sobrenome"]', 'input[placeholder="Sobrenome"]');
-if (sobrenomeEl) sobrenrenomeEl.value = view.sobrenome;
+    const setSelectSmart = (selectEl, value) => {
+      if (!selectEl) return;
+      const target = norm(value);
+      if (!target) {
+        // tenta "Selecione" / vazio
+        selectEl.value = '';
+        return;
+      }
 
-const generoEl = pick('#genero', 'select[name="genero"]', 'select');
-if (generoEl) generoEl.value = view.genero;
+      // 1) tenta casar por value direto
+      selectEl.value = target;
+      if (norm(selectEl.value).toLowerCase() === target.toLowerCase()) return;
 
-const nascEl = pick('#data_nascimento', 'input[name="data_nascimento"]', 'input[type="date"]');
-if (nascEl) nascEl.value = view.data_nascimento ? String(view.data_nascimento).split('T')[0] : '';
+      // 2) tenta casar ignorando case no value
+      const optByValue = [...selectEl.options].find(
+        o => norm(o.value).toLowerCase() === target.toLowerCase()
+      );
+      if (optByValue) {
+        selectEl.value = optByValue.value;
+        return;
+      }
 
-   const cepInput = document.querySelector('input[name="cep"]');
-if (cepInput) cepInput.value = view.cep;
+      // 3) tenta casar por texto do option
+      const optByText = [...selectEl.options].find(
+        o => norm(o.text).toLowerCase() === target.toLowerCase()
+      );
+      if (optByText) {
+        selectEl.value = optByText.value;
+        return;
+      }
 
-const enderecoInput = document.querySelector('input[name="endereco"]');
-if (enderecoInput) enderecoInput.value = view.endereco;
+      // fallback
+      selectEl.value = '';
+    };
 
-const complementoInput = document.querySelector('input[name="complemento"]');
-if (complementoInput) complementoInput.value = view.complemento;
+    const waitForOptions = (selectEl, predicate, timeoutMs = 5000) => {
+      return new Promise((resolve) => {
+        const start = Date.now();
+        const tick = () => {
+          if (!selectEl) return resolve(false);
+          if ([...selectEl.options].some(predicate)) return resolve(true);
+          if (Date.now() - start > timeoutMs) return resolve(false);
+          setTimeout(tick, 120);
+        };
+        tick();
+      });
+    };
 
-const paisSelect = document.getElementById('pais');
-if (paisSelect) paisSelect.value = view.pais;
+    const toISODate = (v) => {
+      const s = norm(v);
+      if (!s) return '';
+      // se vier ISO já, corta
+      if (s.includes('T')) return s.split('T')[0];
+      // se vier YYYY-MM-DD já
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      return s; // fallback (não deve acontecer)
+    };
 
-const estadoSelect = document.getElementById('estado');
-const cidadeSelect = document.getElementById('cidade');
+    // ===== AVATAR =====
+    const avatarImg = byId('avatarImg');
+    if (avatarImg) avatarImg.src = view.avatar || '/assets/images/avatar.png';
 
-if (estadoSelect) {
-  estadoSelect.value = view.estado;
-  estadoSelect.dispatchEvent(new Event('change'));
-}
+    // ===== CAMPOS PRINCIPAIS =====
+    setInput(['#email', 'input[name="email"]', 'input[type="email"]'], view.email);
+    setInput(['#nome', 'input[name="nome"]', 'input[placeholder="Nome"]'], view.nome);
+    setInput(['#sobrenome', 'input[name="sobrenome"]', 'input[placeholder="Sobrenome"]'], view.sobrenome);
+    setInput(['#data_nascimento', 'input[name="data_nascimento"]', 'form input[type="date"]'], toISODate(view.data_nascimento));
 
-if (cidadeSelect) {
-  cidadeSelect.disabled = false;
-  setTimeout(() => {
-    cidadeSelect.value = view.cidade;
-  }, 300);
-}
+    // Gênero: no seu HTML é o 1º select dentro do form
+    const generoEl = pick('#genero', 'select[name="genero"]', 'form select.form-control');
+    setSelectSmart(generoEl, view.genero);
+
+    // ===== ENDEREÇO =====
+    setInput(['#cep', 'input[name="cep"]'], view.cep);
+    setInput(['#endereco', 'input[name="endereco"]'], view.endereco);
+    setInput(['#complemento', 'input[name="complemento"]'], view.complemento);
+
+    // País (no HTML é BR)
+    const paisSelect = byId('pais');
+    if (paisSelect) {
+      const p = norm(view.pais);
+      if (!p) {
+        // mantém default
+      } else if (p.toUpperCase() === 'BR' || p.toLowerCase() === 'brasil') {
+        paisSelect.value = 'BR';
+      } else {
+        paisSelect.value = p;
+      }
+    }
+
+    // ===== ESTADO/CIDADE (IBGE) =====
+    const estadoSelect = byId('estado');
+    const cidadeSelect = byId('cidade');
+
+    // Mapa Nome -> UF (caso seu DB guarde "Pernambuco" e o select use "PE")
+    const UF = {
+      "Acre":"AC","Alagoas":"AL","Amapá":"AP","Amazonas":"AM","Bahia":"BA","Ceará":"CE",
+      "Distrito Federal":"DF","Espírito Santo":"ES","Goiás":"GO","Maranhão":"MA","Mato Grosso":"MT",
+      "Mato Grosso do Sul":"MS","Minas Gerais":"MG","Pará":"PA","Paraíba":"PB","Paraná":"PR",
+      "Pernambuco":"PE","Piauí":"PI","Rio de Janeiro":"RJ","Rio Grande do Norte":"RN",
+      "Rio Grande do Sul":"RS","Rondônia":"RO","Roraima":"RR","Santa Catarina":"SC","São Paulo":"SP",
+      "Sergipe":"SE","Tocantins":"TO"
+    };
+
+    if (estadoSelect) {
+      // espera o ibge.js popular os estados (ele costuma adicionar várias options)
+      await waitForOptions(estadoSelect, o => norm(o.value) !== '', 5000);
+
+      const rawEstado = norm(view.estado);
+      const estadoValue =
+        rawEstado.length === 2 ? rawEstado.toUpperCase() :
+        (UF[rawEstado] || rawEstado);
+
+      setSelectSmart(estadoSelect, estadoValue);
+
+      // IMPORTANTE: como seu perfil.js roda DOMContentLoaded antes do ibge.js (listener),
+      // disparamos o change também no próximo tick, garantindo que o listener do ibge já exista.
+      estadoSelect.dispatchEvent(new Event('change'));
+      setTimeout(() => estadoSelect.dispatchEvent(new Event('change')), 0);
+
+      if (cidadeSelect) {
+        cidadeSelect.disabled = false;
+
+        const rawCidade = norm(view.cidade);
+        if (rawCidade) {
+          // espera o ibge.js popular as cidades depois do change
+          await waitForOptions(
+            cidadeSelect,
+            o => norm(o.value) !== '' || norm(o.text) !== '',
+            5000
+          );
+
+          // tenta casar cidade por value, senão por texto
+          let opt = [...cidadeSelect.options].find(o => norm(o.value).toLowerCase() === rawCidade.toLowerCase());
+          if (!opt) opt = [...cidadeSelect.options].find(o => norm(o.text).toLowerCase() === rawCidade.toLowerCase());
+
+          if (opt) cidadeSelect.value = opt.value;
+        }
+      }
+    }
 
   } catch (err) {
     console.error('Erro ao carregar perfil:', err);
@@ -156,20 +259,20 @@ function configurarSubmit() {
     const novaSenha = (document.getElementById('novaSenha')?.value ?? '').trim();
 
     const payload = {
-      email: document.querySelector('input[type="email"]').value.trim(),
+      email: document.getElementById('email')?.value.trim(),
       senhaAtual,
       novaSenha,
-      nome: document.querySelector('input[placeholder="Nome"]').value.trim(),
-      sobrenome: document.querySelector('input[placeholder="Sobrenome"]').value.trim(),
-      genero: document.querySelector('select').value,
-      data_nascimento: document.querySelector('input[type="date"]').value,
+      nome: document.getElementById('nome')?.value.trim(),
+      sobrenome: document.getElementById('sobrenome')?.value.trim(),
+      genero: document.getElementById('genero')?.value,
+      data_nascimento: document.getElementById('data_nascimento')?.value,
 
-      cep: document.querySelector('input[name="cep"]')?.value ?? null,
-      endereco: document.querySelector('input[name="endereco"]')?.value ?? null,
+      cep: document.getElementById('cep')?.value ?? null,
+      endereco: document.getElementById('endereco')?.value ?? null,
       pais: document.getElementById('pais')?.value ?? null,
       estado: document.getElementById('estado')?.value ?? null,
       cidade: document.getElementById('cidade')?.value ?? null,
-      complemento: document.querySelector('input[name="complemento"]')?.value ?? null
+      complemento: document.getElementById('complemento')?.value ?? null
     };
 
     // validação: só exige senha atual se for trocar senha
