@@ -52,6 +52,22 @@ async function carregarPerfil() {
   try {
     const data = await apiJson('/api/profile', { method: 'GET' });
 
+    // normaliza chaves PT/EN
+    const view = {
+      email: data.email ?? '',
+      avatar: data.avatar ?? '',
+      nome: data.nome ?? data.first_name ?? '',
+      sobrenome: data.sobrenome ?? data.last_name ?? '',
+      genero: data.genero ?? data.gender ?? '',
+      data_nascimento: data.data_nascimento ?? data.birth_date ?? '',
+      cep: data.cep ?? '',
+      endereco: data.endereco ?? data.address ?? '',
+      pais: data.pais ?? data.country ?? '',
+      estado: data.estado ?? data.state ?? '',
+      cidade: data.cidade ?? data.city ?? '',
+      complemento: data.complemento ?? data.complement ?? ''
+    };
+
     // Avatar
     const avatarImg = document.getElementById('avatarImg');
     if (avatarImg) {
@@ -59,60 +75,60 @@ async function carregarPerfil() {
     }
 
     // Campos principais
-    // helper: pega o primeiro seletor que existir
-    function pick(...selectors) {
-      for (const s of selectors) {
-        const el = document.querySelector(s);
-        if (el) return el;
-      }
-      return null;
-    }
+    // Avatar
+const avatarImg = document.getElementById('avatarImg');
+if (avatarImg) avatarImg.src = view.avatar || '/assets/images/avatar.png';
 
-    // Campos principais (robusto)
-    const emailEl = pick('#email', 'input[name="email"]', 'input[type="email"]');
-    if (emailEl) emailEl.value = data.email ?? '';
+// Campos principais
+function pick(...selectors) {
+  for (const s of selectors) {
+    const el = document.querySelector(s);
+    if (el) return el;
+  }
+  return null;
+}
 
-    const nomeEl = pick('#nome', 'input[name="nome"]', 'input[placeholder="Nome"]');
-    if (nomeEl) nomeEl.value = data.nome ?? '';
+const emailEl = pick('#email', 'input[name="email"]', 'input[type="email"]');
+if (emailEl) emailEl.value = view.email;
 
-    const sobrenomeEl = pick('#sobrenome', 'input[name="sobrenome"]', 'input[placeholder="Sobrenome"]');
-    if (sobrenomeEl) sobrenomeEl.value = data.sobrenome ?? '';
+const nomeEl = pick('#nome', 'input[name="nome"]', 'input[placeholder="Nome"]');
+if (nomeEl) nomeEl.value = view.nome;
 
-    const generoEl = pick('#genero', 'select[name="genero"]', 'select#gender');
-    if (generoEl) generoEl.value = data.genero ?? '';
+const sobrenomeEl = pick('#sobrenome', 'input[name="sobrenome"]', 'input[placeholder="Sobrenome"]');
+if (sobrenomeEl) sobrenrenomeEl.value = view.sobrenome;
 
-    // data_nascimento pode vir Date/string ISO
-    const nascEl = pick('#data_nascimento', 'input[name="data_nascimento"]', 'input[type="date"]');
-    if (nascEl) nascEl.value = data.data_nascimento ? String(data.data_nascimento).split('T')[0] : '';
+const generoEl = pick('#genero', 'select[name="genero"]', 'select');
+if (generoEl) generoEl.value = view.genero;
 
-    // Campos com name/id
-    const cepInput = document.querySelector('input[name="cep"]');
-    if (cepInput) cepInput.value = data.cep ?? '';
+const nascEl = pick('#data_nascimento', 'input[name="data_nascimento"]', 'input[type="date"]');
+if (nascEl) nascEl.value = view.data_nascimento ? String(view.data_nascimento).split('T')[0] : '';
 
-    const enderecoInput = document.querySelector('input[name="endereco"]');
-    if (enderecoInput) enderecoInput.value = data.endereco ?? '';
+   const cepInput = document.querySelector('input[name="cep"]');
+if (cepInput) cepInput.value = view.cep;
 
-    const complementoInput = document.querySelector('input[name="complemento"]');
-    if (complementoInput) complementoInput.value = data.complemento ?? '';
+const enderecoInput = document.querySelector('input[name="endereco"]');
+if (enderecoInput) enderecoInput.value = view.endereco;
 
-    const paisSelect = document.getElementById('pais');
-    if (paisSelect) paisSelect.value = data.pais ?? '';
+const complementoInput = document.querySelector('input[name="complemento"]');
+if (complementoInput) complementoInput.value = view.complemento;
 
-    // Estado / Cidade (compatível com ibge.js)
-    const estadoSelect = document.getElementById('estado');
-    const cidadeSelect = document.getElementById('cidade');
+const paisSelect = document.getElementById('pais');
+if (paisSelect) paisSelect.value = view.pais;
 
-    if (estadoSelect) {
-      estadoSelect.value = data.estado ?? '';
-      estadoSelect.dispatchEvent(new Event('change'));
-    }
+const estadoSelect = document.getElementById('estado');
+const cidadeSelect = document.getElementById('cidade');
 
-    if (cidadeSelect) {
-      cidadeSelect.disabled = false;
-      setTimeout(() => {
-        cidadeSelect.value = data.cidade ?? '';
-      }, 300);
-    }
+if (estadoSelect) {
+  estadoSelect.value = view.estado;
+  estadoSelect.dispatchEvent(new Event('change'));
+}
+
+if (cidadeSelect) {
+  cidadeSelect.disabled = false;
+  setTimeout(() => {
+    cidadeSelect.value = view.cidade;
+  }, 300);
+}
 
   } catch (err) {
     console.error('Erro ao carregar perfil:', err);
