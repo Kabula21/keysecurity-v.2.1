@@ -1,11 +1,9 @@
 {
     "name": "ule",
     "version": "2.0.0",
-    "description": "KeySecurity",
-    "main": "server.js",
-    "scripts": {
-        "start": "node server.js",
-        "dev": "node server.js",
+    "type": "module",
+    "description": "KeySecurity",    
+    "scripts": {     
         "watch": "sass --watch main/scss/style.scss:main/css/style.css"
     },
     "author": "Anderson Kabula",
@@ -45,8 +43,6 @@
         "dotenv": "^17.2.3",
         "dropzone": "^5.5.1",
         "echarts": "^4.1.0",
-        "express": "^5.2.1",
-        "express-session": "^1.18.2",
         "flot": "^0.8.0-alpha",
         "flot-spline": "0.0.1",
         "fullcalendar": "^3.9.0",
