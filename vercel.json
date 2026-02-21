@@ -9,6 +9,11 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
 
+    { "src": "/css/(.*)", "dest": "/main/css/$1" },
+    { "src": "/js/(.*)", "dest": "/main/js/$1" },
+    { "src": "/icons/(.*)", "dest": "/main/icons/$1" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+
     { "src": "/login/?", "dest": "/main/pages/page-login.html" },
     { "src": "/home/?", "dest": "/main/pages/home.html" },
     { "src": "/perfil/?", "dest": "/main/pages/perfil.html" },
