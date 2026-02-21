@@ -33,7 +33,9 @@ document.getElementById('loginForm').addEventListener('submit', async function (
     }
 
     // Login OK
-    window.location.href = '/home';
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next');
+    window.location.href = next ? next : '/home';
 
   } catch (err) {
     console.error('Erro de rede:', err);
