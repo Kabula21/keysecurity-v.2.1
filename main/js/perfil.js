@@ -4,19 +4,55 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================
+   HELPERS (JWT + FETCH)
+========================= */
+function getToken() {
+  return localStorage.getItem('keysecurity_token'); // vem do login.js
+}
+
+async function apiFetch(url, options = {}) {
+  const token = getToken();
+
+  const headers = new Headers(options.headers || {});
+  // Só define JSON se não for FormData
+  if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  const res = await fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include' // ok pra cookie no futuro, não atrapalha Bearer
+  });
+
+  // Se deslogou/expirou
+  if (res.status === 401) {
+    localStorage.removeItem('keysecurity_token');
+    throw new Error('401');
+  }
+
+  return res;
+}
+
+async function apiJson(url, options = {}) {
+  const res = await apiFetch(url, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error || `Erro HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+/* =========================
    CARREGAR DADOS DO PERFIL
 ========================= */
 async function carregarPerfil() {
   try {
-    const res = await fetch('/api/profile', {
-      credentials: 'same-origin'
-    });
+    const data = await apiJson('/api/profile', { method: 'GET' });
 
-    if (!res.ok) throw new Error('Não autorizado');
-
-    const data = await res.json();
-
-    // ✅ Avatar (agora data já existe)
+    // Avatar
     const avatarImg = document.getElementById('avatarImg');
     if (avatarImg) {
       avatarImg.src = data.avatar || '/assets/images/avatar.png';
@@ -61,8 +97,14 @@ async function carregarPerfil() {
 
   } catch (err) {
     console.error('Erro ao carregar perfil:', err);
-    showModal('Sessão expirada', 'Faça login novamente.', 'error');
-    setTimeout(() => window.location.href = '/login', 900);
+
+    if (String(err.message) === '401') {
+      showModal('Sessão expirada', 'Faça login novamente.', 'error');
+      setTimeout(() => window.location.href = '/login', 900);
+      return;
+    }
+
+    showModal('Erro', err.message || 'Erro ao carregar perfil', 'error');
   }
 }
 
@@ -83,7 +125,7 @@ function configurarSubmit() {
     const senhaAtual = (document.getElementById('senhaAtual')?.value ?? '').trim();
     const novaSenha = (document.getElementById('novaSenha')?.value ?? '').trim();
 
-    const data = {
+    const payload = {
       email: document.querySelector('input[type="email"]').value.trim(),
       senhaAtual,
       novaSenha,
@@ -100,37 +142,30 @@ function configurarSubmit() {
       complemento: document.querySelector('input[name="complemento"]')?.value ?? null
     };
 
-    // 🔐 validação: só exige senha atual se for trocar senha
-    if (data.novaSenha && !data.senhaAtual) {
+    // validação: só exige senha atual se for trocar senha
+    if (payload.novaSenha && !payload.senhaAtual) {
       showModal('Atenção', 'Informe a senha atual para alterar a senha.', 'info');
       return;
     }
 
     try {
-      const res = await fetch('/api/profile', {
+      await apiJson('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
 
-      const result = await res.json();
-
-      if (!res.ok) {
-        showModal('Erro', result.error || 'Erro ao atualizar perfil', 'error');
-        return;
-      }
-
-      if (result.logout) {
-        showModal('Atenção', 'Email ou senha alterados. Faça login novamente.', 'info');
-        setTimeout(() => window.location.href = '/login', 900);
-      } else {
-        showModal('Sucesso', 'Perfil atualizado com sucesso.', 'success');
-      }
+      showModal('Sucesso', 'Perfil atualizado com sucesso.', 'success');
 
     } catch (err) {
       console.error('Erro ao salvar perfil:', err);
-      showModal('Erro', 'Erro de conexão com o servidor.', 'error');
+
+      if (String(err.message) === '401') {
+        showModal('Sessão expirada', 'Faça login novamente.', 'error');
+        setTimeout(() => window.location.href = '/login', 900);
+        return;
+      }
+
+      showModal('Erro', err.message || 'Erro ao atualizar perfil', 'error');
     }
   });
 
@@ -151,35 +186,44 @@ function configurarSubmit() {
       if (!ok) return;
 
       try {
-        const res = await fetch('/api/profile', {
-          method: 'DELETE',
-          credentials: 'same-origin'
-        });
+        await apiJson('/api/profile', { method: 'DELETE' });
 
-        const result = await res.json();
-
-        if (!res.ok) {
-          showModal('Erro', result.error || 'Erro ao excluir conta', 'error');
-          return;
-        }
-
+        // limpa token e volta pro login
+        localStorage.removeItem('keysecurity_token');
         showModal('Conta excluída', 'Sua conta foi removida com sucesso.', 'success');
         setTimeout(() => window.location.href = '/login', 900);
 
       } catch (err) {
         console.error(err);
-        showModal('Erro', 'Erro de conexão ao excluir conta.', 'error');
+
+        if (String(err.message) === '401') {
+          showModal('Sessão expirada', 'Faça login novamente.', 'error');
+          setTimeout(() => window.location.href = '/login', 900);
+          return;
+        }
+
+        showModal('Erro', err.message || 'Erro ao excluir conta', 'error');
       }
     });
   }
 
   /* =========================
      AVATAR (UPLOAD / REMOVER)
+     Serverless-friendly: envia dataUrl em JSON
   ========================= */
   const avatarFile = document.getElementById('avatarFile');
   const btnUpload = document.getElementById('btnUploadAvatar');
   const btnRemove = document.getElementById('btnRemoveAvatar');
   const avatarImg = document.getElementById('avatarImg');
+
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   if (btnUpload && avatarFile) {
     btnUpload.addEventListener('click', () => avatarFile.click());
@@ -194,29 +238,33 @@ function configurarSubmit() {
         return;
       }
 
-      const formData = new FormData();
-      formData.append('avatar', file);
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+        showModal('Erro', 'Formato inválido. Use PNG, JPG ou WEBP.', 'error');
+        avatarFile.value = '';
+        return;
+      }
 
       try {
-        const res = await fetch('/api/profile/avatar', {
-          method: 'POST',
-          credentials: 'same-origin',
-          body: formData
+        const dataUrl = await fileToDataUrl(file);
+
+        const result = await apiJson('/api/profile/avatar', {
+          method: 'PUT',
+          body: JSON.stringify({ dataUrl })
         });
-
-        const result = await res.json();
-
-        if (!res.ok) {
-          showModal('Erro', result.error || 'Erro ao enviar foto', 'error');
-          return;
-        }
 
         if (avatarImg) avatarImg.src = result.avatar;
         showModal('Sucesso', 'Foto atualizada com sucesso.', 'success');
 
       } catch (err) {
         console.error(err);
-        showModal('Erro', 'Erro de conexão ao enviar foto.', 'error');
+
+        if (String(err.message) === '401') {
+          showModal('Sessão expirada', 'Faça login novamente.', 'error');
+          setTimeout(() => window.location.href = '/login', 900);
+          return;
+        }
+
+        showModal('Erro', err.message || 'Erro ao enviar foto.', 'error');
       } finally {
         avatarFile.value = '';
       }
@@ -235,24 +283,21 @@ function configurarSubmit() {
       if (!ok) return;
 
       try {
-        const res = await fetch('/api/profile/avatar', {
-          method: 'DELETE',
-          credentials: 'same-origin'
-        });
-
-        const result = await res.json();
-
-        if (!res.ok) {
-          showModal('Erro', result.error || 'Erro ao remover foto', 'error');
-          return;
-        }
+        await apiJson('/api/profile/avatar', { method: 'DELETE' });
 
         if (avatarImg) avatarImg.src = '/assets/images/avatar.png';
         showModal('Sucesso', 'Foto removida.', 'success');
 
       } catch (err) {
         console.error(err);
-        showModal('Erro', 'Erro de conexão ao remover foto.', 'error');
+
+        if (String(err.message) === '401') {
+          showModal('Sessão expirada', 'Faça login novamente.', 'error');
+          setTimeout(() => window.location.href = '/login', 900);
+          return;
+        }
+
+        showModal('Erro', err.message || 'Erro ao remover foto.', 'error');
       }
     });
   }

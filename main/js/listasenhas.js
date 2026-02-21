@@ -7,6 +7,54 @@ let currentPage = 1;
 const pageSize = 10;        // ✅ 10 acordeões por página
 const maxPageButtons = 10;  // ✅ no máximo 10 botões numéricos
 
+/* =========================
+   AUTH + FETCH HELPER (JWT)
+========================= */
+function getToken() {
+  return localStorage.getItem('keysecurity_token');
+}
+
+async function apiFetch(url, options = {}) {
+  const token = getToken();
+
+  const headers = new Headers(options.headers || {});
+
+  // Só seta Content-Type quando tiver body JSON (não FormData)
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  const res = await fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include'
+  });
+
+  if (res.status === 401) {
+    localStorage.removeItem('keysecurity_token');
+    if (typeof showModal === 'function') {
+      showModal('Sessão expirada', 'Faça login novamente.', 'error');
+      setTimeout(() => (window.location.href = '/login'), 900);
+    } else {
+      window.location.href = '/login';
+    }
+    throw new Error('401');
+  }
+
+  return res;
+}
+
+async function apiJson(url, options = {}) {
+  const res = await apiFetch(url, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Erro HTTP ${res.status}`);
+  }
+  return data;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   bindAcoesUI();
   configurarModalGrupo();
@@ -74,27 +122,9 @@ async function carregarSenhas() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/passwords', { credentials: 'same-origin' });
-
-    if (res.status === 401) {
-      if (typeof showModal === 'function') {
-        showModal('Sessão expirada', 'Faça login novamente.', 'error');
-        setTimeout(() => window.location.href = '/login', 900);
-      } else {
-        window.location.href = '/login';
-      }
-      return;
-    }
-
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(txt);
-    }
-
-    allGroups = await res.json();
+    allGroups = await apiJson('/api/passwords', { method: 'GET' });
     filteredGroups = [...allGroups];
 
-    // sempre que recarregar, mantém página válida
     const totalPages = Math.max(1, Math.ceil(filteredGroups.length / pageSize));
     if (currentPage > totalPages) currentPage = totalPages;
 
@@ -103,6 +133,8 @@ async function carregarSenhas() {
     atualizarContador();
 
   } catch (err) {
+    if (String(err.message) === '401') return; // já redireciona no helper
+
     console.error('Erro ao carregar senhas:', err);
     if (typeof showModal === 'function') {
       showModal('Erro', 'Não foi possível carregar as senhas.', 'error');
@@ -469,48 +501,41 @@ function configurarModalGrupo() {
   if (!btnSalvar || !inputNome || !inputId || !title) return;
 
   btnSalvar.addEventListener('click', async () => {
-    const id = (inputId.value || '').trim();   // se existir -> editar
-    const name = inputNome.value.trim();
-    const type = (inputTipo?.value || '').trim();
+  const id = (inputId.value || '').trim();
+  const name = inputNome.value.trim();
+  const type = (inputTipo?.value || '').trim();
 
-    if (!name) {
-      if (typeof showModal === 'function') showModal('Atenção', 'Informe o Nome Principal.', 'info');
-      return;
-    }
+  if (!name) {
+    if (typeof showModal === 'function') showModal('Atenção', 'Informe o Nome Principal.', 'info');
+    return;
+  }
 
-    try {
-      const url = id ? `/api/password-groups/${id}` : '/api/password-groups';
-      const method = id ? 'PUT' : 'POST';
+  try {
+    const method = id ? 'PUT' : 'POST';
+    const payload = id
+      ? { id: Number(id), name, type }
+      : { name, type };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ name, type })
-      });
+    await apiJson('/api/password-groups', {
+      method,
+      body: JSON.stringify(payload)
+    });
 
-      const result = await res.json();
+    // limpa e reseta modal
+    inputId.value = '';
+    inputNome.value = '';
+    if (inputTipo) inputTipo.value = '';
+    title.textContent = 'Novo Grupo';
 
-      if (!res.ok) {
-        if (typeof showModal === 'function') showModal('Erro', result.error || 'Erro ao salvar grupo', 'error');
-        return;
-      }
+    if (window.$) window.$('#modalGrupo').modal('hide');
+    if (typeof showModal === 'function') showModal('Sucesso', 'Grupo salvo com sucesso.', 'success');
 
-      // limpa e reseta modal
-      inputId.value = '';
-      inputNome.value = '';
-      if (inputTipo) inputTipo.value = '';
-      title.textContent = 'Novo Grupo';
-
-      if (window.$) window.$('#modalGrupo').modal('hide');
-      if (typeof showModal === 'function') showModal('Sucesso', 'Grupo salvo com sucesso.', 'success');
-
-      carregarSenhas();
-    } catch (err) {
-      console.error(err);
-      if (typeof showModal === 'function') showModal('Erro', 'Erro de conexão ao salvar grupo.', 'error');
-    }
-  });
+    carregarSenhas();
+  } catch (err) {
+    console.error(err);
+    if (typeof showModal === 'function') showModal('Erro', err.message || 'Erro de conexão ao salvar grupo.', 'error');
+  }
+});
 }
 
 function abrirModalEditarGrupo(btn) {
@@ -565,54 +590,44 @@ function configurarModalItem() {
   if (!btnSalvar) return;
 
   btnSalvar.addEventListener('click', async () => {
-    const itemId = (document.getElementById('itemId')?.value || '').trim();
-    const groupId = Number(document.getElementById('itemGroupId')?.value || currentGroupId);
+  const itemId = (document.getElementById('itemId')?.value || '').trim();
+  const groupId = Number(document.getElementById('itemGroupId')?.value || currentGroupId);
 
-    const username = (document.getElementById('itemUsuario')?.value || '').trim();
-    const email = (document.getElementById('itemEmail')?.value || '').trim();
-    const password = (document.getElementById('itemSenha')?.value || '').trim();
-    const note = (document.getElementById('itemObs')?.value || '').trim();
+  const username = (document.getElementById('itemUsuario')?.value || '').trim();
+  const email = (document.getElementById('itemEmail')?.value || '').trim();
+  const password = (document.getElementById('itemSenha')?.value || '').trim();
+  const note = (document.getElementById('itemObs')?.value || '').trim();
 
-    if (!groupId) {
-      if (typeof showModal === 'function') showModal('Erro', 'Grupo inválido.', 'error');
-      return;
-    }
-    if (!password) {
-      if (typeof showModal === 'function') showModal('Atenção', 'Informe a senha.', 'info');
-      return;
-    }
+  if (!groupId) {
+    if (typeof showModal === 'function') showModal('Erro', 'Grupo inválido.', 'error');
+    return;
+  }
+  if (!password) {
+    if (typeof showModal === 'function') showModal('Atenção', 'Informe a senha.', 'info');
+    return;
+  }
 
-    try {
-      const url = itemId ? `/api/password-items/${itemId}` : '/api/password-items';
-      const method = itemId ? 'PUT' : 'POST';
+  try {
+    const method = itemId ? 'PUT' : 'POST';
 
-      const payload = itemId
-        ? { username, email, password, note }
-        : { groupId, username, email, password, note };
+    const payload = itemId
+      ? { id: Number(itemId), username, email, password, note }
+      : { groupId, username, email, password, note };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(payload)
-      });
+    await apiJson('/api/password-items', {
+      method,
+      body: JSON.stringify(payload)
+    });
 
-      const result = await res.json();
+    if (window.$) window.$('#modalItem').modal('hide');
+    if (typeof showModal === 'function') showModal('Sucesso', 'Senha salva com sucesso.', 'success');
 
-      if (!res.ok) {
-        if (typeof showModal === 'function') showModal('Erro', result.error || 'Erro ao salvar senha.', 'error');
-        return;
-      }
-
-      if (window.$) window.$('#modalItem').modal('hide');
-      if (typeof showModal === 'function') showModal('Sucesso', 'Senha salva com sucesso.', 'success');
-
-      carregarSenhas();
-    } catch (err) {
-      console.error(err);
-      if (typeof showModal === 'function') showModal('Erro', 'Erro de conexão ao salvar senha.', 'error');
-    }
-  });
+    carregarSenhas();
+  } catch (err) {
+    console.error(err);
+    if (typeof showModal === 'function') showModal('Erro', err.message || 'Erro de conexão ao salvar senha.', 'error');
+  }
+});
 }
 
 /* =========================
@@ -630,24 +645,16 @@ async function excluirItem(itemId) {
   if (!ok) return;
 
   try {
-    const res = await fetch(`/api/password-items/${itemId}`, {
-      method: 'DELETE',
-      credentials: 'same-origin'
-    });
+  await apiJson(`/api/password-items?id=${encodeURIComponent(itemId)}`, {
+    method: 'DELETE'
+  });
 
-    const result = await res.json();
-
-    if (!res.ok) {
-      if (typeof showModal === 'function') showModal('Erro', result.error || 'Erro ao excluir', 'error');
-      return;
-    }
-
-    if (typeof showModal === 'function') showModal('Sucesso', 'Senha excluída.', 'success');
-    carregarSenhas();
-  } catch (err) {
-    console.error(err);
-    if (typeof showModal === 'function') showModal('Erro', 'Erro de conexão ao excluir.', 'error');
-  }
+  if (typeof showModal === 'function') showModal('Sucesso', 'Senha excluída.', 'success');
+  carregarSenhas();
+} catch (err) {
+  console.error(err);
+  if (typeof showModal === 'function') showModal('Erro', err.message || 'Erro de conexão ao excluir.', 'error');
+}
 }
 
 async function excluirGrupo(groupId) {
@@ -662,31 +669,21 @@ async function excluirGrupo(groupId) {
   if (!ok) return;
 
   try {
-    const res = await fetch(`/api/password-groups/${groupId}`, {
-      method: 'DELETE',
-      credentials: 'same-origin'
-    });
+  await apiJson(`/api/password-groups?id=${encodeURIComponent(groupId)}`, {
+    method: 'DELETE'
+  });
 
-    const result = await res.json();
-
-    if (!res.ok) {
-      if (typeof showModal === 'function') {
-        showModal('Erro', result.error || 'Erro ao excluir grupo', 'error');
-      }
-      return;
-    }
-
-    if (typeof showModal === 'function') {
-      showModal('Sucesso', 'Grupo excluído com sucesso.', 'success');
-    }
-
-    carregarSenhas();
-  } catch (err) {
-    console.error(err);
-    if (typeof showModal === 'function') {
-      showModal('Erro', 'Erro de conexão ao excluir grupo.', 'error');
-    }
+  if (typeof showModal === 'function') {
+    showModal('Sucesso', 'Grupo excluído com sucesso.', 'success');
   }
+
+  carregarSenhas();
+} catch (err) {
+  console.error(err);
+  if (typeof showModal === 'function') {
+    showModal('Erro', err.message || 'Erro de conexão ao excluir grupo.', 'error');
+  }
+}
 }
 
 /* =========================
