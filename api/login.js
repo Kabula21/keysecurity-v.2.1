@@ -12,8 +12,10 @@ function readRawBody(req) {
 }
 
 async function getJsonBody(req) {
+  // 1) já veio parseado
   if (req.body && typeof req.body === "object") return req.body;
 
+  // 2) veio como string
   if (typeof req.body === "string" && req.body.trim() !== "") {
     try {
       return JSON.parse(req.body);
@@ -22,6 +24,7 @@ async function getJsonBody(req) {
     }
   }
 
+  // 3) veio undefined -> lê do stream
   const raw = await readRawBody(req);
   if (!raw || raw.trim() === "") return {};
 
@@ -46,52 +49,37 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
 
-    // 1) Tenta schema com password_hash (seu antigo)
-    let userRow = null;
-    try {
-      const r = await pool.query(
-        "SELECT id, email, password_hash FROM users WHERE email = $1",
-        [email]
-      );
-      userRow = r.rows[0] || null;
-      if (userRow) userRow._hash = userRow.password_hash;
-    } catch (e) {
-      // Se a coluna não existir (42703), tentamos schema alternativo
-      if (e?.code !== "42703") throw e;
-    }
+    const result = await pool.query(
+      `
+      SELECT id, email, password_hash, first_name, last_name
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    );
 
-    // 2) Se não achou (ou schema não bateu), tenta schema com password
-    if (!userRow) {
-      const r2 = await pool.query(
-        "SELECT id, email, password FROM users WHERE email = $1",
-        [email]
-      );
-      userRow = r2.rows[0] || null;
-      if (userRow) userRow._hash = userRow.password;
-    }
-
-    if (!userRow) {
+    if (result.rows.length === 0) {
       return res.status(401).json({ error: "Credenciais inválidas" });
     }
 
-    if (!userRow._hash) {
-      return res.status(500).json({
-        error: "Erro interno",
-        details: "Coluna de senha no usuário está vazia.",
-      });
-    }
+    const user = result.rows[0];
 
-    const ok = await bcrypt.compare(password, userRow._hash);
+    const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) {
       return res.status(401).json({ error: "Credenciais inválidas" });
     }
 
-    const token = generateToken({ id: userRow.id, email: userRow.email });
+    const token = generateToken({ id: user.id, email: user.email });
 
     return res.status(200).json({
       success: true,
       token,
-      user: { id: userRow.id, email: userRow.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      },
     });
   } catch (error) {
     return res.status(500).json({
